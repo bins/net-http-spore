@@ -164,7 +164,18 @@ sub uri {
     my $path = URI::Escape::uri_escape($path_info || '', $path_escape_class);
 
     if (defined $query_string && length($query_string) > 0) {
-        $path .= '?' . $query_string;
+        if ( $self->env->{REQUEST_METHOD} eq 'GET')
+        {
+            my $is_interrogation = index($path, '?');
+            if ( $is_inerttogation >= 0 ) {
+                $path .=  '&' .$query_string;
+            } else {
+                $path .= '?' . $query_string;
+            }
+        }
+        else{
+            $self->content($query_string);
+        }
     }
 
     $base =~ s!/$!! if $path =~ m!^/!;

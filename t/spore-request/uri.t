@@ -41,6 +41,7 @@ my @tests = (
     },
     {
         add_env => {
+            REQUEST_METHOD => 'GET',
             HTTP_HOST    => 'example.com',
             SCRIPT_NAME  => '/test',
             'spore.params' => [qw/dynamic daikuma/],
@@ -68,15 +69,17 @@ my @tests = (
     },
     {
         add_env => {
+            REQUEST_METHOD => 'PUT',
             HTTP_HOST    => 'example.com',
             SCRIPT_NAME  => "",
             'spore.params' => [qw/aco tie/],
         },
-        uri        => 'http://example.com/?aco=tie',
+        uri        => 'http://example.com/',
         parameters => { aco => 'tie' }
     },
     {
         add_env => {
+            REQUEST_METHOD => 'GET',
             HTTP_HOST    => 'example.com',
             SCRIPT_NAME  => "",
             'spore.params' => [qw/0/],

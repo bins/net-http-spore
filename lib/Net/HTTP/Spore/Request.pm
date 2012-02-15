@@ -175,6 +175,7 @@ sub _path {
     my $self = shift;
 
     my $query_string;
+    my $original_path = $self->env->{ORIGINAL_PATH_INFO};
     my $path = $self->env->{PATH_INFO};
     my @params = @{ $self->env->{'spore.params'} || [] };
 
@@ -186,13 +187,14 @@ sub _path {
             $query_string .= $key;
             last;
         }
-        unless ( $path && $path =~ s/\:$key/$value/ ) {
+        unless ( $original_path && $original_path =~ s/\:$key/$value/ ) {
             $query_string .= $key . '=' . $value;
             $query_string .= '&' if $query_string && scalar @params;
         }
     }
 
     $query_string =~ s/&$// if $query_string;
+
     return ( $path, $query_string );
 }
 
@@ -262,6 +264,8 @@ sub finalize {
     my $self = shift;
 
     my $path_info = $self->env->{PATH_INFO};
+    # keep original path_info to paser the query_string
+    $self->env->{ORIGINAL_PATH_INFO} = $path_info if !exists $self->env->{ORIGINAL_PATH_INFO};
 
     my $form_data = $self->env->{'spore.form_data'};
     my $headers   = $self->env->{'spore.headers'};
@@ -308,14 +312,15 @@ sub finalize {
     $path_info =~ s/:\w+//g if $path_info;
 
     my $query_string;
-    if (scalar @$query) {
-        $query_string = join('&', @$query);
-    }
+    # use sub uri to construct query_string
+    # if (scalar @$query) {
+    #     $query_string = join('&', @$query);
+    # }
 
     $self->env->{PATH_INFO}    = $path_info;
     $self->env->{QUERY_STRING} = $query_string;
 
-    my $uri = $self->uri($path_info, $query_string || '');
+    my $uri = $self->uri($path_info, $query_string);
 
     my $request = HTTP::Request->new(
         $self->method => $uri, $self->headers

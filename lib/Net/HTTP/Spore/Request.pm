@@ -194,6 +194,7 @@ sub _path {
     }
 
     $query_string =~ s/&$// if $query_string;
+    $self->env->{QUERY_STRING} = $query_string;
 
     return ( $path, $query_string );
 }
@@ -317,10 +318,9 @@ sub finalize {
     #     $query_string = join('&', @$query);
     # }
 
-    $self->env->{PATH_INFO}    = $path_info;
-    $self->env->{QUERY_STRING} = $query_string;
-
     my $uri = $self->uri($path_info, $query_string);
+    
+    $self->env->{PATH_INFO}    = $path_info;
 
     my $request = HTTP::Request->new(
         $self->method => $uri, $self->headers
